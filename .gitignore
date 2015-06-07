@@ -3,7 +3,6 @@ bin-release
 /vs-files
 *.njsproj
 /.ntvs_analysis.dat
-/bin
 /obj/Debug
 *.js.map
 *.dll

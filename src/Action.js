@@ -26,9 +26,9 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
-/// <reference path="../lib/types.d.ts" />
+/// <reference path="./lib/types.d.ts" />
 var ts = require("typescript");
-var FileUtil = require("../lib/FileUtil");
+var FileUtil = require("./lib/FileUtil");
 var TextFile = require("./TextFile");
 var Action = (function () {
     function Action() {

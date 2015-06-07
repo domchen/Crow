@@ -26,20 +26,16 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
-
-/// <reference path="../lib/types.d.ts" />
-
-
-import FunctionComment = require("./FunctionComment");
-
-class LarkDoc {
-
-    public run(srcPath:string):void {
+/// <reference path="./lib/types.d.ts" />
+var FunctionComment = require("./FunctionComment");
+var Entry = (function () {
+    function Entry() {
+    }
+    Entry.prototype.run = function (srcPath) {
         var functionComment = new FunctionComment();
         functionComment.run(srcPath);
-    }
-
-}
-
-var larkDoc = new LarkDoc();
-larkDoc.run("/Users/dom/Documents/Program/HTML5/TSDocTool/test/");
+    };
+    return Entry;
+})();
+var entry = new Entry();
+entry.run("/Users/dom/Documents/Program/HTML5/Crow/test/");

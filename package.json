@@ -1,0 +1,14 @@
+{
+    "name": "crow",
+    "description": "A tool based on tsc for auto generating comments in typescript",
+    "author": "Egret Technology Inc.",
+    "version": "0.9.0",
+    "private": true,
+    "scripts": {
+        "start": "node app"
+    },
+    "bin": {
+        "crow": "./bin/crow"
+    }
+}
+

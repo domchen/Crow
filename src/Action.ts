@@ -27,10 +27,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-/// <reference path="../lib/types.d.ts" />
+/// <reference path="./lib/types.d.ts" />
 
 import ts = require("typescript");
-import FileUtil = require("../lib/FileUtil");
+import FileUtil = require("./lib/FileUtil");
 import TextFile = require("./TextFile");
 
 class Action {

@@ -27,7 +27,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-/// <reference path="../lib/types.d.ts" />
+/// <reference path="./lib/types.d.ts" />
 
 import ts = require("typescript");
 import TextFile = require("./TextFile");

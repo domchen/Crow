@@ -27,5 +27,19 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-/// <reference path="./node.d.ts" />
-/// <reference path="../src/node_modules/typescript/bin/typescript.d.ts" />
+/// <reference path="./lib/types.d.ts" />
+
+
+import FunctionComment = require("./FunctionComment");
+
+class Entry {
+
+    public run(srcPath:string):void {
+        var functionComment = new FunctionComment();
+        functionComment.run(srcPath);
+    }
+
+}
+
+var entry = new Entry();
+entry.run("/Users/dom/Documents/Program/HTML5/Crow/test/");

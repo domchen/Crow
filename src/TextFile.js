@@ -26,7 +26,7 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
-/// <reference path="../lib/types.d.ts" />
+/// <reference path="./lib/types.d.ts" />
 var TextFile = (function () {
     function TextFile(text) {
         this.text = "";

@@ -26,16 +26,6 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
-/// <reference path="../lib/types.d.ts" />
-var FunctionComment = require("./FunctionComment");
-var LarkDoc = (function () {
-    function LarkDoc() {
-    }
-    LarkDoc.prototype.run = function (srcPath) {
-        var functionComment = new FunctionComment();
-        functionComment.run(srcPath);
-    };
-    return LarkDoc;
-})();
-var larkDoc = new LarkDoc();
-larkDoc.run("/Users/dom/Documents/Program/HTML5/TSDocTool/test/");
+
+/// <reference path="./node.d.ts" />
+/// <reference path="../node_modules/typescript/bin/typescript.d.ts" />

@@ -32,7 +32,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-/// <reference path="../lib/types.d.ts" />
+/// <reference path="./lib/types.d.ts" />
 var ts = require("typescript");
 var Action = require("./Action");
 var FunctionComment = (function (_super) {
