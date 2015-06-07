@@ -53,11 +53,12 @@ class VersionFlag extends Action {
     }
 
     private formatModule(declaration:ts.ModuleDeclaration, text:string, textFile:TextFile):void {
+        var ns = declaration.name.text;
+        if (excludeModules.indexOf(ns) != -1) {
+            return;
+        }
         if (declaration.body.kind == ts.SyntaxKind.ModuleDeclaration) {
-            var ns = declaration.name.text;
-            if (excludeModules.indexOf(ns) == -1) {
-                this.formatModule(<ts.ModuleDeclaration>declaration.body, text, textFile);
-            }
+            this.formatModule(<ts.ModuleDeclaration>declaration.body, text, textFile);
             return;
         }
         var statements:ts.Node[] = (<ts.ModuleBlock>declaration.body).statements;
@@ -65,16 +66,18 @@ class VersionFlag extends Action {
         for (var i = 0; i < length; i++) {
             var statement = statements[i];
             var name:string = "";
-            if(statement.kind==ts.SyntaxKind.VariableStatement){
+            if (statement.kind == ts.SyntaxKind.VariableStatement) {
                 name = (<ts.VariableStatement>statement).declarations[0].name.getText();
             }
-            else if("name" in statement){
+            else if ("name" in statement) {
                 name = statement["name"].getText();
             }
             if (name.charAt(0) == "$" || name.charAt(0) == "_") {
+                this.attachPrivate(statement,text,textFile);
                 continue;
             }
             if (!(statement.flags & ts.NodeFlags.Export)) {
+                this.attachPrivate(statement,text,textFile);
                 continue;
             }
             switch (statement.kind) {
@@ -100,6 +103,7 @@ class VersionFlag extends Action {
             if ("name" in member) {
                 var name = member.name.getText();
                 if (name.charAt(0) == "$" || name.charAt(0) == "_") {
+                    this.attachPrivate(member,text,textFile);
                     continue;
                 }
             }
@@ -108,11 +112,14 @@ class VersionFlag extends Action {
             if (flags == 0 || (flags & ts.NodeFlags.Public) || (flags & ts.NodeFlags.Protected)) {
                 this.attachVersion(member, text, textFile);
             }
+            else{
+                this.attachPrivate(member,text,textFile);
+            }
         }
         this.attachVersion(declaration, text, textFile);
     }
 
-    private attachVersion(node:ts.Node, text, textFile:TextFile):void {
+    private attachVersion(node:ts.Node, text:string, textFile:TextFile):void {
         var content = "\n";
         var strings:string[] = [];
         for (var i = 0; i < versions.length; i++) {
@@ -126,7 +133,7 @@ class VersionFlag extends Action {
         var newText = CodeUtil.createComment(indent, content);
         var comments:ts.CommentRange[] = ts.getLeadingCommentRanges(text, node.getFullStart());
         if (!comments || comments.length == 0) {
-            textFile.update(lineStart, lineStart, newText+"\n");
+            textFile.update(lineStart, lineStart, newText + "\n");
         }
         else {
             var versionLines = newText.split("\n");
@@ -143,6 +150,35 @@ class VersionFlag extends Action {
                 var lastLine = lines.pop();
                 lines = lines.concat(versionLines);
                 lines.push(lastLine);
+                textFile.update(range.pos, range.end, lines.join("\n"));
+            }
+        }
+    }
+
+    private attachPrivate(node:ts.Node, text:string, textFile:TextFile):void {
+        var content = "@private";
+        var lineStart = CodeUtil.getLineStartIndex(text, node.getStart());
+        var indent = CodeUtil.getIndent(text, lineStart);
+        var newText = CodeUtil.createComment(indent, content);
+        var comments:ts.CommentRange[] = ts.getLeadingCommentRanges(text, node.getFullStart());
+        if (!comments || comments.length == 0) {
+            textFile.update(lineStart, lineStart, newText + "\n");
+        }
+        else {
+            var privateLines = newText.split("\n");
+            privateLines.pop();
+            privateLines.shift();
+            var length = comments.length;
+            for (var i = 0; i < length; i++) {
+                var range = comments[i];
+                var comment = text.substring(range.pos, range.end);
+                if (comment.indexOf("@private") != -1 || comment.indexOf("*/") == -1) {
+                    continue;
+                }
+                var lines = comment.split("\r\n").join("\n").split("\r").join("\n").split("\n");
+                var firstLine = lines.shift();
+                lines = privateLines.concat(lines);
+                lines.unshift(firstLine);
                 textFile.update(range.pos, range.end, lines.join("\n"));
             }
         }

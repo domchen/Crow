@@ -62,7 +62,7 @@ var FunctionComment = (function (_super) {
             if (declaration) {
                 var comments = ts.getLeadingCommentRanges(text, declaration.getFullStart());
                 if (!comments || comments.length == 0) {
-                    var content = "\n";
+                    var content = "";
                     var parameters = declaration.parameters;
                     if (parameters) {
                         var args = [];
@@ -70,7 +70,9 @@ var FunctionComment = (function (_super) {
                             var para = parameters[i];
                             args.push("@param " + para.name.text + " ");
                         }
-                        content += args.join("\n");
+                        if (args.length > 0) {
+                            content += "\n" + args.join("\n");
+                        }
                     }
                     var typeNode = declaration.type;
                     if (typeNode) {

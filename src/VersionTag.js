@@ -55,11 +55,12 @@ var VersionFlag = (function (_super) {
         }
     };
     VersionFlag.prototype.formatModule = function (declaration, text, textFile) {
+        var ns = declaration.name.text;
+        if (excludeModules.indexOf(ns) != -1) {
+            return;
+        }
         if (declaration.body.kind == 189 /* ModuleDeclaration */) {
-            var ns = declaration.name.text;
-            if (excludeModules.indexOf(ns) == -1) {
-                this.formatModule(declaration.body, text, textFile);
-            }
+            this.formatModule(declaration.body, text, textFile);
             return;
         }
         var statements = declaration.body.statements;
@@ -74,9 +75,11 @@ var VersionFlag = (function (_super) {
                 name = statement["name"].getText();
             }
             if (name.charAt(0) == "$" || name.charAt(0) == "_") {
+                this.attachPrivate(statement, text, textFile);
                 continue;
             }
             if (!(statement.flags & 1 /* Export */)) {
+                this.attachPrivate(statement, text, textFile);
                 continue;
             }
             switch (statement.kind) {
@@ -101,12 +104,16 @@ var VersionFlag = (function (_super) {
             if ("name" in member) {
                 var name = member.name.getText();
                 if (name.charAt(0) == "$" || name.charAt(0) == "_") {
+                    this.attachPrivate(member, text, textFile);
                     continue;
                 }
             }
             var flags = member.flags;
             if (flags == 0 || (flags & 16 /* Public */) || (flags & 64 /* Protected */)) {
                 this.attachVersion(member, text, textFile);
+            }
+            else {
+                this.attachPrivate(member, text, textFile);
             }
         }
         this.attachVersion(declaration, text, textFile);
@@ -141,6 +148,34 @@ var VersionFlag = (function (_super) {
                 var lastLine = lines.pop();
                 lines = lines.concat(versionLines);
                 lines.push(lastLine);
+                textFile.update(range.pos, range.end, lines.join("\n"));
+            }
+        }
+    };
+    VersionFlag.prototype.attachPrivate = function (node, text, textFile) {
+        var content = "@private";
+        var lineStart = CodeUtil.getLineStartIndex(text, node.getStart());
+        var indent = CodeUtil.getIndent(text, lineStart);
+        var newText = CodeUtil.createComment(indent, content);
+        var comments = ts.getLeadingCommentRanges(text, node.getFullStart());
+        if (!comments || comments.length == 0) {
+            textFile.update(lineStart, lineStart, newText + "\n");
+        }
+        else {
+            var privateLines = newText.split("\n");
+            privateLines.pop();
+            privateLines.shift();
+            var length = comments.length;
+            for (var i = 0; i < length; i++) {
+                var range = comments[i];
+                var comment = text.substring(range.pos, range.end);
+                if (comment.indexOf("@private") != -1 || comment.indexOf("*/") == -1) {
+                    continue;
+                }
+                var lines = comment.split("\r\n").join("\n").split("\r").join("\n").split("\n");
+                var firstLine = lines.shift();
+                lines = privateLines.concat(lines);
+                lines.unshift(firstLine);
                 textFile.update(range.pos, range.end, lines.join("\n"));
             }
         }
