@@ -1,2 +1,2 @@
 # Crow
-基于TSC的强类型TS代码注释生成工具
+A command line tool based on tsc for auto generating comments in typescript
