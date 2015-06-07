@@ -32,6 +32,9 @@
 
 import ParamTag = require("./ParamTag");
 import VersionTag = require("./VersionTag");
+import PrivateTag = require("./PrivateTag");
+import LanguageTag = require("./LanguageTag");
+
 
 class Entry {
 
@@ -41,9 +44,15 @@ class Entry {
 
         var version = new VersionTag();
         version.run(srcPath);
+
+        var privateTag = new PrivateTag();
+        privateTag.run(srcPath);
+
+        var languageTag = new LanguageTag();
+        languageTag.run(srcPath);
     }
 
 }
 
 var entry = new Entry();
-entry.run("/Users/dom/Documents/Program/HTML5/Crow/test/");
+entry.run(process.cwd());

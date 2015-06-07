@@ -1,2 +1,2 @@
 # Crow
-A command line tool based on tsc for auto generating comments in typescript
+A command line tool based on tsc for generating comments in typescript

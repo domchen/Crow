@@ -58,8 +58,7 @@ class Action {
             this.formatFile(sourceFile,textFile);
             var result = textFile.toString();
             if(result!=sourceFile.text){
-                console.log(result);
-                //FileUtil.save(sourceFile.filename,result);
+                FileUtil.save(sourceFile.filename,result);
             }
         });
     }

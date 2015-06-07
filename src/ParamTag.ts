@@ -33,64 +33,53 @@ import ts = require("typescript");
 import TextFile = require("./TextFile");
 import Action = require("./Action");
 var CodeUtil = require("./lib/CodeUtil");
+import VisitNode = require("./VisitNode");
 
-class FunctionComment extends Action {
+class FunctionComment extends VisitNode {
 
-    protected formatFile(sourceFile:ts.SourceFile, textFile:TextFile):void {
-        var text = sourceFile.text;
-        var walkNode = (node:ts.Node) => {
-            var declaration:ts.FunctionLikeDeclaration = null;
-            switch (node.kind) {
-                case ts.SyntaxKind.FunctionDeclaration:
-                case ts.SyntaxKind.Method:
-                    var name = (<ts.FunctionLikeDeclaration>node).name.getText();
-                    if(name.charAt(0)=="$"||name.charAt(0)=="_"){
-                        break;
-                    }
-                    var flags = node.flags;
-                    if(flags>0&&
-                        !((flags&ts.NodeFlags.Public)||
-                        (flags&ts.NodeFlags.Protected)||
-                        (flags&ts.NodeFlags.Export))){
-                        break;
-                    }
-                    declaration = <ts.FunctionLikeDeclaration>node;
-                    break;
-            }
-            if (declaration) {
-                var comments = ts.getLeadingCommentRanges(text, declaration.getFullStart())
-                if (!comments || comments.length == 0) {
-                    var content = "";
-                    var parameters = declaration.parameters;
-                    if (parameters) {
-                        var args:string[] = [];
-                        for (var i = 0; i < parameters.length; i++) {
-                            var para = parameters[i];
-                            args.push("@param " + para.name.text + " ");
-                        }
-                        if(args.length>0){
-                            content += "\n"+args.join("\n");
-                        }
-                    }
+    protected visitPrivate(node:ts.Node, text:string, textFile:TextFile):void {
+        if(node.kind!=ts.SyntaxKind.FunctionDeclaration&&node.kind!=ts.SyntaxKind.Method){
+            return;
+        }
+        this.attachParam(<ts.FunctionLikeDeclaration>node,text,textFile);
+    }
 
-                    var typeNode = declaration.type;
-                    if (typeNode) {
-                        var type = text.substring(typeNode.pos, typeNode.end);
-                        if (type && type != "void") {
-                            content += "\n@returns "
-                        }
-                    }
+    protected visitPublic(node:ts.Node, text:string, textFile:TextFile):void {
+        if(node.kind!=ts.SyntaxKind.FunctionDeclaration&&node.kind!=ts.SyntaxKind.Method){
+            return;
+        }
+        this.attachParam(<ts.FunctionLikeDeclaration>node,text,textFile);
+    }
 
-                    var lineStart = CodeUtil.getLineStartIndex(text, declaration.getStart());
-                    var indent = CodeUtil.getIndent(text, lineStart);
-                    var newText = CodeUtil.createComment(indent, content)+"\n";
-                    textFile.update(lineStart, lineStart, newText);
+    private attachParam(declaration:ts.FunctionLikeDeclaration,text:string,textFile:TextFile):void{
+        var comments = ts.getLeadingCommentRanges(text, declaration.getFullStart())
+        if (!comments || comments.length == 0) {
+            var content = "";
+            var parameters = declaration.parameters;
+            if (parameters) {
+                var args:string[] = [];
+                for (var i = 0; i < parameters.length; i++) {
+                    var para = parameters[i];
+                    args.push("@param " + para.name.text + " ");
                 }
-
+                if(args.length>0){
+                    content += "\n"+args.join("\n");
+                }
             }
-            ts.forEachChild(node, walkNode);
-        };
-        walkNode(sourceFile);
+
+            var typeNode = declaration.type;
+            if (typeNode) {
+                var type = text.substring(typeNode.pos, typeNode.end);
+                if (type && type != "void") {
+                    content += "\n@returns "
+                }
+            }
+
+            var lineStart = CodeUtil.getLineStartIndex(text, declaration.getStart());
+            var indent = CodeUtil.getIndent(text, lineStart);
+            var newText = CodeUtil.createComment(indent, content)+"\n";
+            textFile.update(lineStart, lineStart, newText);
+        }
     }
 }
 

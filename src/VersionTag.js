@@ -34,92 +34,16 @@ var __extends = this.__extends || function (d, b) {
 };
 /// <reference path="./lib/types.d.ts" />
 var ts = require("typescript");
-var Action = require("./Action");
+var VisitNode = require("./VisitNode");
 var CodeUtil = require("./lib/CodeUtil");
-var excludeModules = ["sys"];
 var versions = ["Lark 1.0"];
 var VersionFlag = (function (_super) {
     __extends(VersionFlag, _super);
     function VersionFlag() {
         _super.apply(this, arguments);
     }
-    VersionFlag.prototype.formatFile = function (sourceFile, textFile) {
-        var text = sourceFile.text;
-        var statements = sourceFile.statements;
-        var length = statements.length;
-        for (var i = 0; i < length; i++) {
-            var statement = statements[i];
-            if (statement.kind == 189 /* ModuleDeclaration */) {
-                this.formatModule(statement, text, textFile);
-            }
-        }
-    };
-    VersionFlag.prototype.formatModule = function (declaration, text, textFile) {
-        var ns = declaration.name.text;
-        if (excludeModules.indexOf(ns) != -1) {
-            return;
-        }
-        if (declaration.body.kind == 189 /* ModuleDeclaration */) {
-            this.formatModule(declaration.body, text, textFile);
-            return;
-        }
-        var statements = declaration.body.statements;
-        var length = statements.length;
-        for (var i = 0; i < length; i++) {
-            var statement = statements[i];
-            var name = "";
-            if (statement.kind == 164 /* VariableStatement */) {
-                name = statement.declarations[0].name.getText();
-            }
-            else if ("name" in statement) {
-                name = statement["name"].getText();
-            }
-            if (name.charAt(0) == "$" || name.charAt(0) == "_") {
-                this.attachPrivate(statement, text, textFile);
-                continue;
-            }
-            if (!(statement.flags & 1 /* Export */)) {
-                this.attachPrivate(statement, text, textFile);
-                continue;
-            }
-            switch (statement.kind) {
-                case 186 /* InterfaceDeclaration */:
-                case 188 /* EnumDeclaration */:
-                case 185 /* ClassDeclaration */:
-                    this.formatMembers(statement, text, textFile);
-                    break;
-                case 164 /* VariableStatement */:
-                case 184 /* FunctionDeclaration */:
-                case 183 /* VariableDeclaration */:
-                    this.attachVersion(statement, text, textFile);
-                    break;
-            }
-        }
-    };
-    VersionFlag.prototype.formatMembers = function (declaration, text, textFile) {
-        var members = declaration["members"];
-        var length = members.length;
-        for (var i = 0; i < length; i++) {
-            var member = members[i];
-            if ("name" in member) {
-                var name = member.name.getText();
-                if (name.charAt(0) == "$" || name.charAt(0) == "_") {
-                    this.attachPrivate(member, text, textFile);
-                    continue;
-                }
-            }
-            var flags = member.flags;
-            if (flags == 0 || (flags & 16 /* Public */) || (flags & 64 /* Protected */)) {
-                this.attachVersion(member, text, textFile);
-            }
-            else {
-                this.attachPrivate(member, text, textFile);
-            }
-        }
-        this.attachVersion(declaration, text, textFile);
-    };
-    VersionFlag.prototype.attachVersion = function (node, text, textFile) {
-        var content = "\n";
+    VersionFlag.prototype.visitPublic = function (node, text, textFile) {
+        var content = "";
         var strings = [];
         for (var i = 0; i < versions.length; i++) {
             strings.push("@version " + versions[i]);
@@ -152,34 +76,6 @@ var VersionFlag = (function (_super) {
             }
         }
     };
-    VersionFlag.prototype.attachPrivate = function (node, text, textFile) {
-        var content = "@private";
-        var lineStart = CodeUtil.getLineStartIndex(text, node.getStart());
-        var indent = CodeUtil.getIndent(text, lineStart);
-        var newText = CodeUtil.createComment(indent, content);
-        var comments = ts.getLeadingCommentRanges(text, node.getFullStart());
-        if (!comments || comments.length == 0) {
-            textFile.update(lineStart, lineStart, newText + "\n");
-        }
-        else {
-            var privateLines = newText.split("\n");
-            privateLines.pop();
-            privateLines.shift();
-            var length = comments.length;
-            for (var i = 0; i < length; i++) {
-                var range = comments[i];
-                var comment = text.substring(range.pos, range.end);
-                if (comment.indexOf("@private") != -1 || comment.indexOf("*/") == -1) {
-                    continue;
-                }
-                var lines = comment.split("\r\n").join("\n").split("\r").join("\n").split("\n");
-                var firstLine = lines.shift();
-                lines = privateLines.concat(lines);
-                lines.unshift(firstLine);
-                textFile.update(range.pos, range.end, lines.join("\n"));
-            }
-        }
-    };
     return VersionFlag;
-})(Action);
+})(VisitNode);
 module.exports = VersionFlag;

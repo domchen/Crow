@@ -29,6 +29,8 @@
 /// <reference path="./lib/types.d.ts" />
 var ParamTag = require("./ParamTag");
 var VersionTag = require("./VersionTag");
+var PrivateTag = require("./PrivateTag");
+var LanguageTag = require("./LanguageTag");
 var Entry = (function () {
     function Entry() {
     }
@@ -37,8 +39,12 @@ var Entry = (function () {
         functionComment.run(srcPath);
         var version = new VersionTag();
         version.run(srcPath);
+        var privateTag = new PrivateTag();
+        privateTag.run(srcPath);
+        var languageTag = new LanguageTag();
+        languageTag.run(srcPath);
     };
     return Entry;
 })();
 var entry = new Entry();
-entry.run("/Users/dom/Documents/Program/HTML5/Crow/test/");
+entry.run(process.cwd());

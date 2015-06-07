@@ -34,53 +34,32 @@ var __extends = this.__extends || function (d, b) {
 };
 /// <reference path="./lib/types.d.ts" />
 var ts = require("typescript");
-var CodeUtil = require("./lib/CodeUtil");
 var VisitNode = require("./VisitNode");
-var FunctionComment = (function (_super) {
-    __extends(FunctionComment, _super);
-    function FunctionComment() {
+var CodeUtil = require("./lib/CodeUtil");
+var LanguageTag = (function (_super) {
+    __extends(LanguageTag, _super);
+    function LanguageTag() {
         _super.apply(this, arguments);
     }
-    FunctionComment.prototype.visitPrivate = function (node, text, textFile) {
-        if (node.kind != 184 /* FunctionDeclaration */ && node.kind != 125 /* Method */) {
-            return;
-        }
-        this.attachParam(node, text, textFile);
-    };
-    FunctionComment.prototype.visitPublic = function (node, text, textFile) {
-        if (node.kind != 184 /* FunctionDeclaration */ && node.kind != 125 /* Method */) {
-            return;
-        }
-        this.attachParam(node, text, textFile);
-    };
-    FunctionComment.prototype.attachParam = function (declaration, text, textFile) {
-        var comments = ts.getLeadingCommentRanges(text, declaration.getFullStart());
-        if (!comments || comments.length == 0) {
-            var content = "";
-            var parameters = declaration.parameters;
-            if (parameters) {
-                var args = [];
-                for (var i = 0; i < parameters.length; i++) {
-                    var para = parameters[i];
-                    args.push("@param " + para.name.text + " ");
-                }
-                if (args.length > 0) {
-                    content += "\n" + args.join("\n");
-                }
+    LanguageTag.prototype.visitPublic = function (node, text, textFile) {
+        var lineStart = CodeUtil.getLineStartIndex(text, node.getStart());
+        var indent = CodeUtil.getIndent(text, lineStart);
+        var enText = indent + " * @language en_US";
+        var cnText = indent + " * @language zh_CN";
+        var comments = ts.getLeadingCommentRanges(text, node.getFullStart());
+        if (comments && comments.length > 0) {
+            var range = comments[comments.length - 1];
+            var comment = text.substring(range.pos, range.end);
+            if (comment.indexOf("@language") != -1 || comment.indexOf("*/") == -1) {
+                return;
             }
-            var typeNode = declaration.type;
-            if (typeNode) {
-                var type = text.substring(typeNode.pos, typeNode.end);
-                if (type && type != "void") {
-                    content += "\n@returns ";
-                }
-            }
-            var lineStart = CodeUtil.getLineStartIndex(text, declaration.getStart());
-            var indent = CodeUtil.getIndent(text, lineStart);
-            var newText = CodeUtil.createComment(indent, content) + "\n";
-            textFile.update(lineStart, lineStart, newText);
+            var cnLines = comment.split("\r\n").join("\n").split("\r").join("\n").split("\n");
+            var enLines = cnLines.concat();
+            cnLines.splice(1, 0, cnText);
+            enLines.splice(1, 0, enText);
+            textFile.update(range.pos, range.end, enLines.join("\n") + "\n" + indent + cnLines.join("\n"));
         }
     };
-    return FunctionComment;
+    return LanguageTag;
 })(VisitNode);
-module.exports = FunctionComment;
+module.exports = LanguageTag;

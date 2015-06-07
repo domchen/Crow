@@ -26,42 +26,45 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
+
 /// <reference path="./lib/types.d.ts" />
-var ts = require("typescript");
-var FileUtil = require("./lib/FileUtil");
-var TextFile = require("./TextFile");
-var Action = (function () {
-    function Action() {
-    }
-    Action.prototype.run = function (srcPath) {
-        var _this = this;
-        var fileNames = FileUtil.search(srcPath, "ts");
-        var options = { target: 2 /* ES6 */, module: 0 /* None */ };
-        var host = ts.createCompilerHost(options);
-        var program = ts.createProgram(fileNames, options, host);
-        var errors = program.getDiagnostics();
-        if (errors.length > 0) {
-            errors.forEach(function (diagnostic) {
-                var lineChar = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start);
-                console.log("" + diagnostic.file.filename + " (" + lineChar.line + "," + lineChar.character + "): " + diagnostic.messageText);
-            });
-            return;
+
+import ts = require("typescript");
+import TextFile = require("./TextFile");
+import VisitNode = require("./VisitNode");
+import CodeUtil = require("./lib/CodeUtil");
+
+
+class PrivateTag extends VisitNode {
+
+    protected visitPrivate(node:ts.Node, text:string, textFile:TextFile):void {
+        var content = "@private";
+        var lineStart = CodeUtil.getLineStartIndex(text, node.getStart());
+        var indent = CodeUtil.getIndent(text, lineStart);
+        var newText = CodeUtil.createComment(indent, content);
+        var comments:ts.CommentRange[] = ts.getLeadingCommentRanges(text, node.getFullStart());
+        if (!comments || comments.length == 0) {
+            textFile.update(lineStart, lineStart, newText + "\n");
         }
-        program.getSourceFiles().forEach(function (sourceFile) {
-            var filename = sourceFile.filename;
-            if (filename.indexOf(srcPath) != 0) {
-                return;
+        else {
+            var privateLines = newText.split("\n");
+            privateLines.pop();
+            privateLines.shift();
+            var length = comments.length;
+            for (var i = 0; i < length; i++) {
+                var range = comments[i];
+                var comment = text.substring(range.pos, range.end);
+                if (comment.indexOf("@private") != -1 || comment.indexOf("*/") == -1) {
+                    continue;
+                }
+                var lines = comment.split("\r\n").join("\n").split("\r").join("\n").split("\n");
+                var firstLine = lines.shift();
+                lines = privateLines.concat(lines);
+                lines.unshift(firstLine);
+                textFile.update(range.pos, range.end, lines.join("\n"));
             }
-            var textFile = new TextFile(sourceFile.text);
-            _this.formatFile(sourceFile, textFile);
-            var result = textFile.toString();
-            if (result != sourceFile.text) {
-                FileUtil.save(sourceFile.filename, result);
-            }
-        });
-    };
-    Action.prototype.formatFile = function (sourceFile, textFile) {
-    };
-    return Action;
-})();
-module.exports = Action;
+        }
+    }
+}
+
+export = PrivateTag;
