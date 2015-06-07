@@ -30,13 +30,17 @@
 /// <reference path="./lib/types.d.ts" />
 
 
-import FunctionComment = require("./FunctionComment");
+import ParamTag = require("./ParamTag");
+import VersionTag = require("./VersionTag");
 
 class Entry {
 
     public run(srcPath:string):void {
-        var functionComment = new FunctionComment();
+        var functionComment = new ParamTag();
         functionComment.run(srcPath);
+
+        var version = new VersionTag();
+        version.run(srcPath);
     }
 
 }

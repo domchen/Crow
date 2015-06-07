@@ -32,6 +32,7 @@
 import ts = require("typescript");
 import TextFile = require("./TextFile");
 import Action = require("./Action");
+var CodeUtil = require("./lib/CodeUtil");
 
 class FunctionComment extends Action {
 
@@ -78,9 +79,9 @@ class FunctionComment extends Action {
                         }
                     }
 
-                    var lineStart = this.getLineStartIndex(text, declaration.getStart());
-                    var indent = this.getIndent(text, lineStart);
-                    var newText = this.createComment(indent, content);
+                    var lineStart = CodeUtil.getLineStartIndex(text, declaration.getStart());
+                    var indent = CodeUtil.getIndent(text, lineStart);
+                    var newText = CodeUtil.createComment(indent, content)+"\n";
                     textFile.update(lineStart, lineStart, newText);
                 }
 
@@ -88,8 +89,6 @@ class FunctionComment extends Action {
             ts.forEachChild(node, walkNode);
         };
         walkNode(sourceFile);
-        console.log(textFile.toString());
-        textFile.text = text;
     }
 }
 

@@ -58,55 +58,14 @@ class Action {
             this.formatFile(sourceFile,textFile);
             var result = textFile.toString();
             if(result!=sourceFile.text){
-                FileUtil.save(sourceFile.filename,result);
+                console.log(result);
+                //FileUtil.save(sourceFile.filename,result);
             }
         });
     }
 
     protected formatFile(sourceFile:ts.SourceFile,textFile:TextFile):void{
 
-    }
-
-    protected createComment(indent:string, content:string):string {
-        var comment = indent + "/**\n";
-        var lines = content.split("\n");
-        var length = lines.length;
-        for (var i = 0; i < length; i++) {
-            var line = lines[i];
-            comment += indent + " * " + line + "\n";
-        }
-        comment += indent + " */\n";
-        return comment;
-    }
-
-    protected getLineStartIndex(text:string, pos:number):number {
-        text = text.substring(0, pos);
-        var nIndex = text.lastIndexOf("\n");
-        if (nIndex == -1) {
-            nIndex = Number.POSITIVE_INFINITY;
-        }
-        var rIndex = text.lastIndexOf("\n");
-        if (rIndex == -1) {
-            rIndex = Number.POSITIVE_INFINITY;
-        }
-        var index = Math.min(rIndex, nIndex);
-        if (index == Number.POSITIVE_INFINITY) {
-            return 0;
-        }
-        return index + 1;
-    }
-
-    protected getIndent(text:string, startIndex:number):string {
-        if (!text)
-            return "";
-        var indent:string = "";
-        var char = text.charAt(startIndex);
-        while (startIndex < text.length && (char == " " || char == "\t" || char == "\n" || char == "\r" || char == "\f")) {
-            indent += char;
-            startIndex++;
-            char = text.charAt(startIndex);
-        }
-        return indent;
     }
 }
 

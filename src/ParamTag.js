@@ -35,13 +35,13 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path="./lib/types.d.ts" />
 var ts = require("typescript");
 var Action = require("./Action");
+var CodeUtil = require("./lib/CodeUtil");
 var FunctionComment = (function (_super) {
     __extends(FunctionComment, _super);
     function FunctionComment() {
         _super.apply(this, arguments);
     }
     FunctionComment.prototype.formatFile = function (sourceFile, textFile) {
-        var _this = this;
         var text = sourceFile.text;
         var walkNode = function (node) {
             var declaration = null;
@@ -79,17 +79,15 @@ var FunctionComment = (function (_super) {
                             content += "\n@returns ";
                         }
                     }
-                    var lineStart = _this.getLineStartIndex(text, declaration.getStart());
-                    var indent = _this.getIndent(text, lineStart);
-                    var newText = _this.createComment(indent, content);
+                    var lineStart = CodeUtil.getLineStartIndex(text, declaration.getStart());
+                    var indent = CodeUtil.getIndent(text, lineStart);
+                    var newText = CodeUtil.createComment(indent, content) + "\n";
                     textFile.update(lineStart, lineStart, newText);
                 }
             }
             ts.forEachChild(node, walkNode);
         };
         walkNode(sourceFile);
-        console.log(textFile.toString());
-        textFile.text = text;
     };
     return FunctionComment;
 })(Action);

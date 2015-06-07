@@ -27,13 +27,16 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 /// <reference path="./lib/types.d.ts" />
-var FunctionComment = require("./FunctionComment");
+var ParamTag = require("./ParamTag");
+var VersionTag = require("./VersionTag");
 var Entry = (function () {
     function Entry() {
     }
     Entry.prototype.run = function (srcPath) {
-        var functionComment = new FunctionComment();
+        var functionComment = new ParamTag();
         functionComment.run(srcPath);
+        var version = new VersionTag();
+        version.run(srcPath);
     };
     return Entry;
 })();

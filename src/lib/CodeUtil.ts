@@ -26,42 +26,45 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
-/// <reference path="./lib/types.d.ts" />
-var ts = require("typescript");
-var FileUtil = require("./lib/FileUtil");
-var TextFile = require("./TextFile");
-var Action = (function () {
-    function Action() {
+
+export function createComment(indent:string, content:string):string {
+    var comment = indent + "/**\n";
+    var lines = content.split("\n");
+    var length = lines.length;
+    for (var i = 0; i < length; i++) {
+        var line = lines[i];
+        comment += indent + " * " + line + "\n";
     }
-    Action.prototype.run = function (srcPath) {
-        var _this = this;
-        var fileNames = FileUtil.search(srcPath, "ts");
-        var options = { target: 2 /* ES6 */, module: 0 /* None */ };
-        var host = ts.createCompilerHost(options);
-        var program = ts.createProgram(fileNames, options, host);
-        var errors = program.getDiagnostics();
-        if (errors.length > 0) {
-            errors.forEach(function (diagnostic) {
-                var lineChar = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start);
-                console.log("" + diagnostic.file.filename + " (" + lineChar.line + "," + lineChar.character + "): " + diagnostic.messageText);
-            });
-            return;
-        }
-        program.getSourceFiles().forEach(function (sourceFile) {
-            var filename = sourceFile.filename;
-            if (filename.indexOf(srcPath) != 0) {
-                return;
-            }
-            var textFile = new TextFile(sourceFile.text);
-            _this.formatFile(sourceFile, textFile);
-            var result = textFile.toString();
-            if (result != sourceFile.text) {
-                console.log(result);
-            }
-        });
-    };
-    Action.prototype.formatFile = function (sourceFile, textFile) {
-    };
-    return Action;
-})();
-module.exports = Action;
+    comment += indent + " */";
+    return comment;
+}
+
+export function getLineStartIndex(text:string, pos:number):number {
+    text = text.substring(0, pos);
+    var nIndex = text.lastIndexOf("\n");
+    if (nIndex == -1) {
+        nIndex = Number.POSITIVE_INFINITY;
+    }
+    var rIndex = text.lastIndexOf("\n");
+    if (rIndex == -1) {
+        rIndex = Number.POSITIVE_INFINITY;
+    }
+    var index = Math.min(rIndex, nIndex);
+    if (index == Number.POSITIVE_INFINITY) {
+        return 0;
+    }
+    return index + 1;
+}
+
+export function getIndent(text:string, startIndex:number):string {
+    if (!text)
+        return "";
+    var indent:string = "";
+    var char = text.charAt(startIndex);
+    while (startIndex < text.length && (char == " " || char == "\t" || char == "\n" || char == "\r" || char == "\f")) {
+        indent += char;
+        startIndex++;
+        char = text.charAt(startIndex);
+    }
+    return indent;
+}
