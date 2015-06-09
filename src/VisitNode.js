@@ -102,6 +102,9 @@ var VisitNode = (function (_super) {
         var length = members.length;
         for (var i = 0; i < length; i++) {
             var member = members[i];
+            if (member.kind == 128 /* SetAccessor */) {
+                continue;
+            }
             if ("name" in member) {
                 var name = member.name.getText();
                 if (name.charAt(0) == "$" || name.charAt(0) == "_") {
