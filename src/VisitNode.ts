@@ -71,26 +71,30 @@ class VisitNode extends Action {
                 this.visitPrivate(statement,text,textFile);
                 continue;
             }
-            if (!(statement.flags & ts.NodeFlags.Export)) {
-                this.visitPrivate(statement,text,textFile);
-                continue;
-            }
+            var hasMember:boolean = false;
             switch (statement.kind) {
                 case ts.SyntaxKind.InterfaceDeclaration:
                 case ts.SyntaxKind.EnumDeclaration:
                 case ts.SyntaxKind.ClassDeclaration:
-                    this.formatMembers(<ts.EnumDeclaration>statement, text, textFile,isPrivate);
+                    hasMember = true;
                     break;
-                case ts.SyntaxKind.VariableStatement:
-                case ts.SyntaxKind.FunctionDeclaration:
-                case ts.SyntaxKind.VariableDeclaration:
-                    if(isPrivate){
-                        this.visitPrivate(statement,text,textFile);
-                    }
-                    else{
-                        this.visitPublic(<ts.EnumDeclaration>statement, text, textFile);
-                    }
-                    break;
+            }
+            if (!(statement.flags & ts.NodeFlags.Export)) {
+                if(hasMember){
+                    this.visitPrivate(statement,text,textFile);
+                }
+                continue;
+            }
+            if(hasMember){
+                this.formatMembers(<ts.EnumDeclaration>statement, text, textFile,isPrivate);
+            }
+            else{
+                if(isPrivate){
+                    this.visitPrivate(statement,text,textFile);
+                }
+                else{
+                    this.visitPublic(<ts.EnumDeclaration>statement, text, textFile);
+                }
             }
         }
     }

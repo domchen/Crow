@@ -74,26 +74,30 @@ var VisitNode = (function (_super) {
                 this.visitPrivate(statement, text, textFile);
                 continue;
             }
-            if (!(statement.flags & 1 /* Export */)) {
-                this.visitPrivate(statement, text, textFile);
-                continue;
-            }
+            var hasMember = false;
             switch (statement.kind) {
                 case 186 /* InterfaceDeclaration */:
                 case 188 /* EnumDeclaration */:
                 case 185 /* ClassDeclaration */:
-                    this.formatMembers(statement, text, textFile, isPrivate);
+                    hasMember = true;
                     break;
-                case 164 /* VariableStatement */:
-                case 184 /* FunctionDeclaration */:
-                case 183 /* VariableDeclaration */:
-                    if (isPrivate) {
-                        this.visitPrivate(statement, text, textFile);
-                    }
-                    else {
-                        this.visitPublic(statement, text, textFile);
-                    }
-                    break;
+            }
+            if (!(statement.flags & 1 /* Export */)) {
+                if (hasMember) {
+                    this.visitPrivate(statement, text, textFile);
+                }
+                continue;
+            }
+            if (hasMember) {
+                this.formatMembers(statement, text, textFile, isPrivate);
+            }
+            else {
+                if (isPrivate) {
+                    this.visitPrivate(statement, text, textFile);
+                }
+                else {
+                    this.visitPublic(statement, text, textFile);
+                }
             }
         }
     };
