@@ -19,7 +19,6 @@
     ],
     "platforms": [
       "Web",
-      "Runtime",
       "Native"
     ]
   },
