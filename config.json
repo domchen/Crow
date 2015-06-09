@@ -1,0 +1,30 @@
+{
+  "runTags": [
+    "@param",
+    "@version",
+    "@private",
+    "@language"
+  ],
+  "privateModules": [
+    "sys",
+    "web",
+    "native"
+  ],
+  "@param": {
+  },
+  "@version": {
+    "versions": [
+      "Lark 1.0",
+      "Swan 1.0"
+    ],
+    "platforms": [
+      "Web",
+      "Runtime",
+      "Native"
+    ]
+  },
+  "@private": {
+  },
+  "@language": {
+  }
+}

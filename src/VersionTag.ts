@@ -36,18 +36,19 @@ import VisitNode = require("./VisitNode");
 import CodeUtil = require("./lib/CodeUtil");
 
 
-var versions = ["Lark 1.0"];
-
 class VersionFlag extends VisitNode {
+
+    public static versions = ["Lark 1.0"];
+    public static platforms = "Web,Runtime,Native";
 
     protected visitPublic(node:ts.Node, text:string, textFile:TextFile):void {
         var content = "";
         var strings:string[] = [];
-        for (var i = 0; i < versions.length; i++) {
-            strings.push("@version " + versions[i]);
+        for (var i = 0; i < VersionFlag.versions.length; i++) {
+            strings.push("@version " + VersionFlag.versions[i]);
         }
         content += strings.join("\n");
-        content += "\n@platform Web,Runtime,Native";
+        content += "\n@platform "+VersionFlag.platforms;
 
         var lineStart = CodeUtil.getLineStartIndex(text, node.getStart());
         var indent = CodeUtil.getIndent(text, lineStart);

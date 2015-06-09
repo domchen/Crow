@@ -44,7 +44,6 @@ export function save(path:string, data:any):void {
         remove(path);
     }
     path = escapePath(path);
-    textTemp[path] = data;
     createDirectory(Path.dirname(path));
     FS.writeFileSync(path, data, charset);
 }
@@ -88,29 +87,18 @@ export function createDirectory(path:string, mode?:any, made?:any):void {
     return made;
 }
 
-var textTemp = {};
 /**
  * 读取文本文件,返回打开文本的字符串内容，若失败，返回"".
  * @param path 要打开的文件路径
  */
-export function read(path:string,ignoreCache = false):string {
+export function read(path:string):string {
     path = escapePath(path);
-    var text = textTemp[path];
-    if (text && !ignoreCache) {
-        return text;
-    }
     try {
-        text = FS.readFileSync(path, charset);
+        var text = FS.readFileSync(path, charset);
         text = text.replace(/^\uFEFF/, '');
     }
     catch (err0) {
         return "";
-    }
-    if (text) {
-        var ext = getExtension(path).toLowerCase();
-        if (ext == "ts" || ext == "exml") {
-            textTemp[path] = text;
-        }
     }
     return text;
 }

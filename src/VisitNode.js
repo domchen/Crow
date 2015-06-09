@@ -38,7 +38,6 @@ var VisitNode = (function (_super) {
     __extends(VisitNode, _super);
     function VisitNode() {
         _super.apply(this, arguments);
-        this.excludeModules = ["sys", "web", "native"];
     }
     VisitNode.prototype.formatFile = function (sourceFile, textFile) {
         var text = sourceFile.text;
@@ -53,7 +52,7 @@ var VisitNode = (function (_super) {
     };
     VisitNode.prototype.formatModule = function (declaration, text, textFile, isPrivate) {
         var ns = declaration.name.text;
-        if (this.excludeModules.indexOf(ns) != -1) {
+        if (VisitNode.privateModules.indexOf(ns) != -1) {
             isPrivate = true;
         }
         if (declaration.body.kind == 189 /* ModuleDeclaration */) {
@@ -129,6 +128,7 @@ var VisitNode = (function (_super) {
     };
     VisitNode.prototype.visitPrivate = function (node, text, textFile) {
     };
+    VisitNode.privateModules = ["sys", "web", "native"];
     return VisitNode;
 })(Action);
 module.exports = VisitNode;

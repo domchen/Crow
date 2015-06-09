@@ -36,7 +36,6 @@ var __extends = this.__extends || function (d, b) {
 var ts = require("typescript");
 var VisitNode = require("./VisitNode");
 var CodeUtil = require("./lib/CodeUtil");
-var versions = ["Lark 1.0"];
 var VersionFlag = (function (_super) {
     __extends(VersionFlag, _super);
     function VersionFlag() {
@@ -45,11 +44,11 @@ var VersionFlag = (function (_super) {
     VersionFlag.prototype.visitPublic = function (node, text, textFile) {
         var content = "";
         var strings = [];
-        for (var i = 0; i < versions.length; i++) {
-            strings.push("@version " + versions[i]);
+        for (var i = 0; i < VersionFlag.versions.length; i++) {
+            strings.push("@version " + VersionFlag.versions[i]);
         }
         content += strings.join("\n");
-        content += "\n@platform Web,Runtime,Native";
+        content += "\n@platform " + VersionFlag.platforms;
         var lineStart = CodeUtil.getLineStartIndex(text, node.getStart());
         var indent = CodeUtil.getIndent(text, lineStart);
         var newText = CodeUtil.createComment(indent, content);
@@ -76,6 +75,8 @@ var VersionFlag = (function (_super) {
             }
         }
     };
+    VersionFlag.versions = ["Lark 1.0"];
+    VersionFlag.platforms = "Web,Runtime,Native";
     return VersionFlag;
 })(VisitNode);
 module.exports = VersionFlag;

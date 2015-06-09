@@ -33,7 +33,7 @@ import Action = require("./Action");
 
 class VisitNode extends Action {
 
-    private excludeModules = ["sys","web","native"];
+    public static privateModules = ["sys","web","native"];
 
     protected formatFile(sourceFile:ts.SourceFile, textFile:TextFile):void {
         var text = sourceFile.text;
@@ -49,7 +49,7 @@ class VisitNode extends Action {
 
     private formatModule(declaration:ts.ModuleDeclaration, text:string, textFile:TextFile,isPrivate?:boolean):void {
         var ns = declaration.name.text;
-        if (this.excludeModules.indexOf(ns) != -1) {
+        if (VisitNode.privateModules.indexOf(ns) != -1) {
             isPrivate = true;
         }
         if (declaration.body.kind == ts.SyntaxKind.ModuleDeclaration) {

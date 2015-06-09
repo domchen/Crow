@@ -35,51 +35,51 @@ import VersionTag = require("./VersionTag");
 import PrivateTag = require("./PrivateTag");
 import LanguageTag = require("./LanguageTag");
 import PublicProps = require("./PublicProps");
-
+import Global = require("./lib/Global");
+import FileUtil = require('./lib/FileUtil');
+import VisitNode = require("./VisitNode");
 
 class Entry {
 
-    public run(srcPath:string):void {
-        var args:string[] = process.argv.slice(2)
-        var length = args.length;
-        if (length == 0) {
-            var paramTag = new ParamTag();
-            paramTag.run(srcPath);
-
-            var versionTag = new VersionTag();
-            versionTag.run(srcPath);
-
-            var privateTag = new PrivateTag();
-            privateTag.run(srcPath);
-
-            var languageTag = new LanguageTag();
-            languageTag.run(srcPath);
+    public run():void {
+        var srcPath = process.cwd();
+        var configPath = process.argv.slice()[2];
+        if(!configPath){
+            var rootPath = Global.getRootPath();
+            configPath = FileUtil.joinPath(rootPath,"config.json");
         }
-        else {
-            for (var i = 0; i < length; i++) {
-                var arg = args[i].toLowerCase();
-                switch (arg) {
-                    case "-param":
-                        var paramTag = new ParamTag();
-                        paramTag.run(srcPath);
-                        break;
-                    case "-version":
-                        var versionTag = new VersionTag();
-                        versionTag.run(srcPath);
-                        break;
-                    case "-private":
-                        var privateTag = new PrivateTag();
-                        privateTag.run(srcPath);
-                        break;
-                    case "-language":
-                        var languageTag = new LanguageTag();
-                        languageTag.run(srcPath);
-                        break;
-                    case "-props":
-                        var props = new PublicProps();
-                        props.run(srcPath);
-                        break;
-                }
+
+        var string = FileUtil.read(configPath);
+        var config = JSON.parse(string);
+        VisitNode.privateModules = config.privateModules;
+        VersionTag.versions = config["@version"].versions;
+        VersionTag.platforms = config["@version"].platforms.join(",");
+
+        var runTags = config.runTags;
+        var length = runTags.length;
+        for (var i = 0; i < length; i++) {
+            var tag = runTags[i].toLowerCase();
+            switch (tag) {
+                case "@param":
+                    var paramTag = new ParamTag();
+                    paramTag.run(srcPath);
+                    break;
+                case "@version":
+                    var versionTag = new VersionTag();
+                    versionTag.run(srcPath);
+                    break;
+                case "@private":
+                    var privateTag = new PrivateTag();
+                    privateTag.run(srcPath);
+                    break;
+                case "@language":
+                    var languageTag = new LanguageTag();
+                    languageTag.run(srcPath);
+                    break;
+                case "props":
+                    var props = new PublicProps();
+                    props.run(srcPath);
+                    break;
             }
         }
 
@@ -88,4 +88,4 @@ class Entry {
 }
 
 var entry = new Entry();
-entry.run(process.cwd());
+entry.run();
