@@ -38,7 +38,7 @@ var VisitNode = (function (_super) {
     __extends(VisitNode, _super);
     function VisitNode() {
         _super.apply(this, arguments);
-        this.excludeModules = ["sys"];
+        this.excludeModules = ["sys", "web", "native"];
     }
     VisitNode.prototype.formatFile = function (sourceFile, textFile) {
         var text = sourceFile.text;

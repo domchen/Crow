@@ -34,22 +34,55 @@ import ParamTag = require("./ParamTag");
 import VersionTag = require("./VersionTag");
 import PrivateTag = require("./PrivateTag");
 import LanguageTag = require("./LanguageTag");
+import PublicProps = require("./PublicProps");
 
 
 class Entry {
 
     public run(srcPath:string):void {
-        var functionComment = new ParamTag();
-        functionComment.run(srcPath);
+        var args:string[] = process.argv.slice(2)
+        var length = args.length;
+        if (length == 0) {
+            var paramTag = new ParamTag();
+            paramTag.run(srcPath);
 
-        var version = new VersionTag();
-        version.run(srcPath);
+            var versionTag = new VersionTag();
+            versionTag.run(srcPath);
 
-        var privateTag = new PrivateTag();
-        privateTag.run(srcPath);
+            var privateTag = new PrivateTag();
+            privateTag.run(srcPath);
 
-        var languageTag = new LanguageTag();
-        languageTag.run(srcPath);
+            var languageTag = new LanguageTag();
+            languageTag.run(srcPath);
+        }
+        else {
+            for (var i = 0; i < length; i++) {
+                var arg = args[i].toLowerCase();
+                switch (arg) {
+                    case "-param":
+                        var paramTag = new ParamTag();
+                        paramTag.run(srcPath);
+                        break;
+                    case "-version":
+                        var versionTag = new VersionTag();
+                        versionTag.run(srcPath);
+                        break;
+                    case "-private":
+                        var privateTag = new PrivateTag();
+                        privateTag.run(srcPath);
+                        break;
+                    case "-language":
+                        var languageTag = new LanguageTag();
+                        languageTag.run(srcPath);
+                        break;
+                    case "-props":
+                        var props = new PublicProps();
+                        props.run(srcPath);
+                        break;
+                }
+            }
+        }
+
     }
 
 }

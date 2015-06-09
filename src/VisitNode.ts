@@ -33,7 +33,7 @@ import Action = require("./Action");
 
 class VisitNode extends Action {
 
-    private excludeModules = ["sys"];
+    private excludeModules = ["sys","web","native"];
 
     protected formatFile(sourceFile:ts.SourceFile, textFile:TextFile):void {
         var text = sourceFile.text;
