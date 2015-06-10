@@ -80,7 +80,7 @@ class VisitNode extends Action {
                     break;
             }
             if (!(statement.flags & ts.NodeFlags.Export)) {
-                if(hasMember){
+                if(hasMember||statement.kind==ts.SyntaxKind.FunctionDeclaration){
                     this.visitPrivate(statement,text,textFile);
                 }
                 continue;

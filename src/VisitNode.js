@@ -83,7 +83,7 @@ var VisitNode = (function (_super) {
                     break;
             }
             if (!(statement.flags & 1 /* Export */)) {
-                if (hasMember) {
+                if (hasMember || statement.kind == 184 /* FunctionDeclaration */) {
                     this.visitPrivate(statement, text, textFile);
                 }
                 continue;
