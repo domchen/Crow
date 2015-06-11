@@ -42,7 +42,7 @@ import VisitNode = require("./VisitNode");
 class Entry {
 
     public run():void {
-        var srcPath = process.cwd();
+        var srcPath = FileUtil.escapePath(process.cwd());
         var configPath = process.argv.slice()[2];
         if(!configPath){
             var rootPath = Global.getRootPath();
