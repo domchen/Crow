@@ -35,12 +35,12 @@ function getRootPath() {
     for (var i = 0; i < globalPaths.length; i++) {
         var prefix = globalPaths[i];
         var url = path.join(prefix, "../crow");
-        if (FileUtil.exists(url)) {
+        if (FileUtil.isDirectory(url)) {
             existsFlag = true;
             break;
         }
         var url = path.join(prefix, "crow");
-        if (FileUtil.exists(url)) {
+        if (FileUtil.isDirectory(url)) {
             existsFlag = true;
             break;
         }
