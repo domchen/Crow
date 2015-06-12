@@ -51,6 +51,9 @@ var VisitNode = (function (_super) {
         }
     };
     VisitNode.prototype.formatModule = function (declaration, text, textFile, isPrivate) {
+        if (declaration.flags & 2 /* Ambient */) {
+            return;
+        }
         var ns = declaration.name.text;
         if (VisitNode.privateModules.indexOf(ns) != -1) {
             isPrivate = true;

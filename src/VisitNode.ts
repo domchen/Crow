@@ -48,6 +48,9 @@ class VisitNode extends Action {
     }
 
     private formatModule(declaration:ts.ModuleDeclaration, text:string, textFile:TextFile,isPrivate?:boolean):void {
+        if(declaration.flags&ts.NodeFlags.Ambient){
+            return;
+        }
         var ns = declaration.name.text;
         if (VisitNode.privateModules.indexOf(ns) != -1) {
             isPrivate = true;
