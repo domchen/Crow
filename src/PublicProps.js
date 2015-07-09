@@ -39,7 +39,7 @@ var PublicProps = (function (_super) {
     __extends(PublicProps, _super);
     function PublicProps() {
         _super.apply(this, arguments);
-        this.excludeKeys = ["__bindables__", "__classFlag__", "__defaultProperty__", "__hashCode__", "__class__", "__meta__", "__global", "__typeFlags__"];
+        this.excludeKeys = ["__bindables__", "__classFlag__", "__defaultProperty__", "__hashCode__", "__class__", "__meta__", "__global", "__typeFlags__", "__types__"];
     }
     PublicProps.prototype.run = function (srcPath) {
         _super.prototype.run.call(this, srcPath);

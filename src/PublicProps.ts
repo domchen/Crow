@@ -35,7 +35,7 @@ import CodeUtil = require("./lib/CodeUtil");
 import FileUtil = require("./lib/FileUtil");
 
 class PublicProps extends VisitNode{
-    private excludeKeys:string[] = ["__bindables__","__classFlag__","__defaultProperty__","__hashCode__","__class__","__meta__","__global","__typeFlags__"];
+    private excludeKeys:string[] = ["__bindables__","__classFlag__","__defaultProperty__","__hashCode__","__class__","__meta__","__global","__typeFlags__","__types__"];
 
     public run(srcPath:string):void{
         super.run(srcPath);
